@@ -1,0 +1,17 @@
+{
+  "name": "TripClicker",
+  "displayName": "TripClicker",
+  "expo": {
+    "name": "TripClicker",
+    "slug": "TripClicker",
+    "version": "1.0.0",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
