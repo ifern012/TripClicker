@@ -47,69 +47,19 @@ export var trips = [
         link: 'https://www.backroads.com/award-winning-tours/hawaii',
         image: 'https://s29081.pcdn.co/wp-content/uploads/2018/02/best-hikes-on-kauai-hawaii-02521.jpg.optimal.jpg'
       }
-    ]
-  },
-  {
-    id:'2',
-    username: 'Ivan',
-    destination: 'Kauai',
-    image: 'https://www.islands.com/resizer/MTZLcwZkaScVHZ_Ti0kgKTIghiY=/760x570/filters:focal(750x563:751x564)/arc-anglerfish-arc2-prod-bonnier.s3.amazonaws.com/public/UZRN76POETY6JDHNP3YKT6RMRM.jpg',
-    hotel: {
-      name: 'Waikiki Beach Resort',
-      link: 'http://www.booking.com/Share-Fn1Gi0N',
-      image: 'https://pix10.agoda.net/hotelImages/124/1246280/1246280_16061017110043391702.jpg?s=1024x768',
-      description: 'Located across from the Ala Wai Canal, this boutique hotel offers free daily continental breakfast and free Wi-Fi. The Royal Hawaiian Shopping Center is less than a 10-minute walk away.'
-    },
-    activities: [
+    ],
+    restaurants: [
       {
-        name: 'Kayaking',
-        description: 'Perfect for exercising and disconnecting from you stressful life',
-        link: 'http://adventureinhawaii.com/oahu/oahu-kayak-tours/',
-        image: 'http://adventureinhawaii.com/site/wp-content/uploads/2014/03/kailua-kayak-3.jpg'
+        name: 'Poké Bar',
+        description: '$',
+        link: 'https://www.ilovepokebar.com/',
+        image: 'https://www.foodrepublic.com/wp-content/uploads/2017/01/pokebowl.jpg'
       },
       {
-        name: 'Skydiving',
-        description: 'Live an exciting experience full of adrenaline by throwing yourself from 12000 feet in the air',
-        link: 'http://www.skydivehawaii.com/',
-        image: 'http://www.skydivehawaii.com/Portals/0/WebSitesCreative_Banner/560/8d5eed02-42dc-46af-ba8e-98890be2f336_resized.jpg'
-      },
-      {
-        name: 'Hiking',
-        description: 'Live an exciting experience full of adrenaline by throwing yourself from 12000 feet in the air',
-        link: 'https://www.backroads.com/award-winning-tours/hawaii',
-        image: 'https://s29081.pcdn.co/wp-content/uploads/2018/02/best-hikes-on-kauai-hawaii-02521.jpg.optimal.jpg'
-      }
-    ]
-  },
-  {
-    id:'3',
-    username: 'Ivan',
-    destination: 'Guantanamera',
-    image: 'https://media.iatiseguros.com/wp-content/uploads/2018/04/04005429/que-hacer-en-hawaii-5.jpg',
-    hotel: {
-      name: 'Waikiki Beach Resort',
-      link: 'http://www.booking.com/Share-Fn1Gi0N',
-      image: 'https://pix10.agoda.net/hotelImages/124/1246280/1246280_16061017110043391702.jpg?s=1024x768',
-      description: 'Located across from the Ala Wai Canal, this boutique hotel offers free daily continental breakfast and free Wi-Fi. The Royal Hawaiian Shopping Center is less than a 10-minute walk away.'
-    },
-    activities: [
-      {
-        name: 'Kayaking',
-        description: 'Perfect for exercising and disconnecting from you stressful life',
-        link: 'http://adventureinhawaii.com/oahu/oahu-kayak-tours/',
-        image: 'http://adventureinhawaii.com/site/wp-content/uploads/2014/03/kailua-kayak-3.jpg'
-      },
-      {
-        name: 'Skydiving',
-        description: 'Live an exciting experience full of adrenaline by throwing yourself from 12000 feet in the air',
-        link: 'http://www.skydivehawaii.com/',
-        image: 'http://www.skydivehawaii.com/Portals/0/WebSitesCreative_Banner/560/8d5eed02-42dc-46af-ba8e-98890be2f336_resized.jpg'
-      },
-      {
-        name: 'Hiking',
-        description: 'Live an exciting experience full of adrenaline by throwing yourself from 12000 feet in the air',
-        link: 'https://www.backroads.com/award-winning-tours/hawaii',
-        image: 'https://s29081.pcdn.co/wp-content/uploads/2018/02/best-hikes-on-kauai-hawaii-02521.jpg.optimal.jpg'
+        name: 'Pooké Bar',
+        description: '$$',
+        link: 'https://www.ilovepokebar.com/',
+        image: 'https://www.foodrepublic.com/wp-content/uploads/2017/01/pokebowl.jpg'
       }
     ]
   }
@@ -410,6 +360,22 @@ export function destinationPresent(dest)
   }
   return false;
 }
+export function addTrip(trip)
+{
+  var newId = Math.floor(Math.random() * 1000000) + 1;
+  var newTrip = {
+    id: newId,
+    username: User.username,
+    destination: trip.destination,
+    startDate: trip.startDate,
+    endDate: trip.endDate,
+    image: trip.image,
+    hotel: trip.hotel,
+    activities: trip.activities,
+    restaurants: trip.restaurants
+  }
+  trips.push(newTrip);
+}
 export function getDestination(id)
 {
   for(var i = 0; i<destinations.length; i++)
@@ -500,9 +466,9 @@ function HomeScreen({ navigation }) {
 const Drawer = createDrawerNavigator();
 function MainScreen() {
   return (
-      <Drawer.Navigator initialRouteName="Details" screenOptions={{headerShown: false}}>
-        <Drawer.Screen name="Details" component={DetailsScreen} />
-        <Drawer.Screen name="Trips" component={TripsScreen} />
+      <Drawer.Navigator initialRouteName="CreateTrip" screenOptions={{headerShown: false}}>
+        <Drawer.Screen name="CreateTrip" component={DetailsScreen} options={{title: 'Create new trip'}} />
+        <Drawer.Screen name="Trips" component={TripsScreen} options={{title: 'My trips'}}/>
       </Drawer.Navigator>
   );
 }

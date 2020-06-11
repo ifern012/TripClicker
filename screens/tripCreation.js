@@ -1,7 +1,7 @@
 import React, { useState }  from 'react';
-import { Image, View, Text, StyleSheet, SafeAreaView, ScrollView, Linking, Dimensions, TextInput } from 'react-native';
+import { Image, View, Text, StyleSheet, SafeAreaView, ScrollView, Linking, Dimensions, TextInput, Alert } from 'react-native';
 import { Card, Input, Button, Icon, Divider } from 'react-native-elements';
-import { getDestination, destinationPresent, Stack, getUser} from '../App.js';
+import { getDestination, destinationPresent, Stack, addTrip} from '../App.js';
 import DatePicker from 'react-native-datepicker';
   
 const win = Dimensions.get('window');
@@ -9,7 +9,8 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 20,
     fontWeight: "bold",
-    color: 'red'
+    color: 'red',
+    width: 300
   },
   tripsText: {
     fontSize: 22,
@@ -40,18 +41,11 @@ const styles = StyleSheet.create({
   }
 });
 var selectedTrip = {
-  id:'1',
   startDate: 1,
   endDate: 1,
-  username: '',
-  destination: 'Oahu',
-  image: 'https://media.iatiseguros.com/wp-content/uploads/2018/04/04005429/que-hacer-en-hawaii-5.jpg',
-  hotel: {
-    name: 'Waikiki Beach Resort',
-    link: 'http://www.booking.com/Share-Fn1Gi0N',
-    image: 'https://pix10.agoda.net/hotelImages/124/1246280/1246280_16061017110043391702.jpg?s=1024x768',
-    description: 'Located across from the Ala Wai Canal, this boutique hotel offers free daily continental breakfast and free Wi-Fi. The Royal Hawaiian Shopping Center is less than a 10-minute walk away.'
-  },
+  destination: null,
+  image: null,
+  hotel: null,
   activities: [],
   restaurants: []
 }
@@ -66,7 +60,9 @@ export function DetailsScreen() {
 function CreateTripScreen({navigation}) {
     var [city, setCity] = useState('');
     var [error, setError] = useState(false);
-    var [date, setDate] = useState(0);
+    var [dateError, setDateError] = useState(false);
+    var [stDate, setStDate] = useState(0);
+    var [endDate, setEndDate] = useState(0);
     return (
       
       <View style={{ flex: 1}}>
@@ -102,34 +98,64 @@ function CreateTripScreen({navigation}) {
             marginTop: 0,
             resizeMode: 'contain'
         }} />
-        <View style={{ flex: 0.2, alignItems: 'center', justifyContent: 'center'}}>
-          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+        <View style={{ flex: 0.8}}>
+          <View style={{ flex: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
             <DatePicker
-              style={{width: 200}}
-              date={date}
+              style={{width: 150, marginBottom: 20}}
+              date={stDate}
               mode="date"
-              placeholder="start date"
-              format="YYYY-MM-DD"
-              minDate="2020-06-12"
-              maxDate="2022-06-12"
+              showIcon={false}
+              placeholder="Start date"
+              format="MM-DD-YYYY"
+              minDate="06-12-2020"
+              maxDate="06-12-2022"
               confirmBtnText="Confirm"
               cancelBtnText="Cancel"
               customStyles={{
-                dateIcon: {
-                  position: 'absolute',
-                  left: 0,
-                  top: 4,
-                  marginLeft: 0
-                },
                 dateInput: {
-                  marginLeft: 36
+                  marginLeft: 36,
+                  borderRadius: 20,
+                  backgroundColor: 'rgba(255,255,255,0.7)',
+                  borderColor: 'white'
+                },
+                placeholderText: {
+                  color: 'rgba(70, 70, 70, 1)',
+                },
+                dateText: {
+                  color: 'rgba(70, 70, 70, 1)',
                 }
-              // ... You can check the source to find the other keys.
             }}
-            onDateChange={(date) => changeDate(date, setDate, true)}
+            onDateChange={(date) => changeDate(date, setStDate, true)}
+            />
+            <DatePicker
+              style={{width: 150, marginBottom: 20, marginRight: 100}}
+              date={endDate}
+              mode="date"
+              showIcon={false}
+              placeholder="End date"
+              format="MM-DD-YYYY"
+              minDate="06-12-2020"
+              maxDate="06-12-2022"
+              confirmBtnText="Confirm"
+              cancelBtnText="Cancel"
+              customStyles={{
+                dateInput: {
+                  marginLeft: 36,
+                  borderRadius: 20,
+                  backgroundColor: 'rgba(255,255,255,0.7)',
+                  borderColor: 'white'
+                },
+                placeholderText: {
+                  color: 'rgba(70, 70, 70, 1)',
+                },
+                dateText: {
+                  color: 'rgba(70, 70, 70, 1)',
+                }
+            }}
+            onDateChange={(date) => changeDate(date, setEndDate, false)}
             />
           </View>
-          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+          <View style={{ flex: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
             <TextInput
               style={{ height: 60, 
                 borderColor: 'white', 
@@ -156,13 +182,16 @@ function CreateTripScreen({navigation}) {
               title=""
               buttonStyle = {{marginLeft: 10,borderRadius: 100,
               backgroundColor: "white"}}
-              onPress={() => handleNewTripSubmit({navigation}, city, setError)}
+              onPress={() => handleNewTripSubmit({navigation}, city, setError, setDateError)}
               type="outline"
             />
           </View>
-         
+          <View style={{ flex: 0, flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          { error && <Text style={styles.errorText}>{"\n"}Destination selected not yet on database {"\n"}</Text>}
+          { dateError && <Text style={styles.errorText}>{"\n"}Dates are not valid {"\n"}</Text>}
+          </View>
         </View>
-        { error && <Text style={styles.errorText}>{"\n"}Destination selected not yet on database {"\n"}</Text>}
+        
       </View>
     );
 }
@@ -218,23 +247,59 @@ function TripCreator({ route, navigation }) {
           <ScrollView horizontal={true} style={{}}>
             {restaurantsDestList(destination, restBool, setRestBool)}
           </ScrollView>
+          <Button
+              buttonStyle={{borderRadius: 10, marginTop: 10, marginRight: 0, marginBottom: 5, backgroundColor: "#00e676"}}
+              title={'Create trip'}
+              onPress={() => createTrip({navigation})}/>
         </View>
       </View>
     </ScrollView>
     </SafeAreaView>
   );
 }
-
-//-----------Handle-----------
-function handleNewTripSubmit ({navigation}, trip, setError) {
-  if(destinationPresent(trip))
+function createTrip({navigation}) {
+  if(selectedTrip.hotel == null || !selectedTrip.activities || !selectedTrip.restaurants)
   {
+    Alert.alert(
+      'Could not create trip',
+      'Please choose at least one for each category',
+      [
+        { text: 'OK', onPress: () => console.log('OK Pressed') }
+      ],
+      { cancelable: false }
+    );
+  }else{
+    addTrip(selectedTrip);
+    navigation.navigate('CreateTrip');
+  }
+}
+//-----------Handle-----------
+function handleNewTripSubmit ({navigation}, trip, setError, setDateError) {
+  if(destinationPresent(trip)){
     setError(false);
+  }else{
+    setError(true);
+  }
+  if(selectedTrip.startDate <= selectedTrip.endDate)
+  {
+    setDateError(false);
+  }else{
+    setDateError(true);
+  }
+  if(destinationPresent(trip) && selectedTrip.startDate <= selectedTrip.endDate)
+  {
+    selectedTrip = {
+      startDate: selectedTrip.startDate,
+      endDate: selectedTrip.endDate,
+      destination: null,
+      image: null,
+      hotel: null,
+      activities: [],
+      restaurants: []
+    }
     navigation.navigate('TripCreator', {
       destination: trip
     });
-  }else{
-    setError(true);
   }
 }
 

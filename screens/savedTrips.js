@@ -1,6 +1,6 @@
 import React, { useState }  from 'react';
 import { Image, View, Text, StyleSheet, SafeAreaView, ScrollView, Linking, Dimensions, TextInput } from 'react-native';
-import { Card, Input, Button, Icon } from 'react-native-elements';
+import { Card, Input, Button, Icon, Divider } from 'react-native-elements';
 import { getTrip, Stack, trips, User } from '../App.js';
 
 const win = Dimensions.get('window');
@@ -8,12 +8,27 @@ const styles = StyleSheet.create({
     errorText: {
       fontSize: 20,
       fontWeight: "bold",
-      color: 'red'
+      color: 'red',
+      width: 300
     },
     tripsText: {
       fontSize: 22,
       fontWeight: "bold",
-      color: 'darkgrey'
+      color: '#ffffff',
+    },
+    tripsContainer: {
+      backgroundColor: '#b39ddb',
+      flex: 0.1, alignItems: 'center',
+      padding: 10, justifyContent: 'center', marginBottom: 20,
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 5,
+      },
+      shadowOpacity: 0.44,
+      shadowRadius: 3,
+  
+      elevation: 8,
     },
     tripsTitle: {
       fontSize: 56,
@@ -21,9 +36,9 @@ const styles = StyleSheet.create({
       color: 'white',
       position: "relative",
       top: -100, 
-      marginBottom: -80
+      marginBottom: -87
     }
-});
+  });
 export function TripsScreen() {
     return (
       <Stack.Navigator initialRouteName="TripList" screenOptions={{headerShown: false}}>
@@ -56,7 +71,9 @@ function Trips({ navigation }) {
             onPress={() => navigation.toggleDrawer()}
         /></View>
         <View style={{ flex: 0.2, alignItems: 'center', justifyContent: 'center'}}>
-        <Text style={styles.tripsText}>{"\n"}Previous trips</Text>
+        <View style={styles.tripsContainer}>
+            <Text style={styles.tripsText}>PREVIOUS TRIPS</Text>
+          </View>
         {tripsList({navigation})}</View>
         </View>
         </ScrollView>
@@ -69,33 +86,47 @@ function TripDetails({ route, navigation }) {
     return (
         <SafeAreaView style={styles.container}>
         <ScrollView >
-        <View style={{ flex: 1, alignItems: 'center'}}>
-            <Image source={{uri: trip.image}} style={{
-            height: 300,
-            width: win.width,
-            marginBottom: 10,
-            borderBottomWidth: 0,
-            paddingBottom: 0
-            }}/>
-            <Text style={styles.tripsTitle}>{trip.destination}</Text>
-            <Text style={styles.tripsText}>Hotel</Text>
-            <View style={{flexDirection:'column', justifyContent:'center', alignItems:'center'}}>
+      <View style={{ flex: 1, backgroundColor: '#ede7f6'}}>
+        <Image source={{uri: trip.image}} style={{
+          height: 300,
+          width: win.width,
+          marginBottom: 0,
+          paddingBottom: 0,
+        }}/>
+        <Divider style={{ backgroundColor: '#836fa9', height: 7}} />
+        <View style={styles.tripsContainer}>
+        <Text style={styles.tripsTitle}>{trip.destination}</Text>
+        <Text style={styles.tripsText}>WHERE TO STAY</Text></View>
+        <View style={{flexDirection:'column'}}>
             <View style={{flexDirection:'row', justifyContent:'center', alignItems:'center'}}>
-            <Card
-            title={trip.hotel.name}
-            image={{uri: trip.hotel.image}}
-            containerStyle={{flex: 0.8, marginBottom: 5}}>
-                <Text>{trip.hotel.description}</Text>
-                <Button
-                buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 5}}
-                title='GO TO BOOKING' 
-                onPress={() => Linking.openURL(trip.hotel.link)}/>
-            </Card></View>
-            <Text style={styles.tripsText}>{"\n"}Activities</Text>
-            {activitiesList(trip.id)}
+                <Card
+                title={trip.hotel.name}
+                image={{uri: trip.hotel.image}}
+                containerStyle={{flex: 0.8, marginBottom: 50 , borderRadius: 10}}>
+                    <Text>{trip.hotel.description}</Text>
+                    <Button
+                    buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 5}}
+                    title='GO TO BOOKING' 
+                    onPress={() => Linking.openURL(trip.hotel.link)}/>
+                </Card>
             </View>
+          <Divider style={{ backgroundColor: '#836fa9', height: 7}} />
+          <View style={styles.tripsContainer}>
+            <Text style={styles.tripsText}>WHAT TO DO</Text>
+          </View>
+          <ScrollView horizontal={true} style={{}}>
+            {activitiesList(tripId)}
+          </ScrollView>
+          <Divider style={{ backgroundColor: '#836fa9', height: 7}} />
+          <View style={styles.tripsContainer}>
+            <Text style={styles.tripsText}>WHERE TO EAT</Text>
+          </View>
+          <ScrollView horizontal={true} style={{}}>
+            {restaurantsList(tripId)}
+          </ScrollView>
         </View>
-        </ScrollView>
+      </View>
+    </ScrollView>
         </SafeAreaView>
     );
 }
@@ -129,7 +160,7 @@ return getTrip(id).activities.map((data) => {
         <Card
         title={data.name}
         image={{uri: data.image}}
-        containerStyle={{flex: 0.8, marginBottom: 5}}>
+        containerStyle={{width: 300, flex:0.5, margin: 20, marginBottom: 50, borderRadius: 10}}>
         <Text>{data.description}</Text>
         <Button
             buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginTop: 15}}
@@ -140,3 +171,22 @@ return getTrip(id).activities.map((data) => {
     )
 })
 }
+function restaurantsList(id) {
+    return getTrip(id).restaurants.map((data) => {
+      return (
+        <View style={{flexDirection:'row', justifyContent:'center', alignItems:'center'}}>
+          <Card
+          title={data.name}
+          image={{uri: data.image}}
+          containerStyle={{width: 300, flex:0.5, margin: 20, marginBottom: 50, borderRadius: 10}}>
+          <View style={{alignItems: 'center'}}>
+          <Text style={{color: '#616161', fontWeight: 'bold'}}>{data.description}</Text></View>
+            <Button
+              buttonStyle={{borderRadius: 10, marginLeft: 0, marginRight: 0, marginTop: 15}}
+              title='GO TO ITS WEB' 
+              onPress={() => Linking.openURL(data.link)}/>
+          </Card>
+        </View>
+      )
+    })
+  }
