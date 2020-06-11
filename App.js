@@ -4,8 +4,14 @@ import { Card, Input, Button, Icon } from 'react-native-elements';
 import { NavigationContainer } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
-import { DetailsScreen } from './screens/tripCreation.js';
+// import { DetailsScreen } from './screens/tripCreation.js';
+import TripCreation from './screens/tripCreation.js';
 import { TripsScreen } from './screens/savedTrips.js';
+
+import Navigation from './Navigation/navigation.js';
+// testing
+import LoginScreen from './screens/login.js';
+import TitleScreen from './screens/titleScreen.js';
 
 //Variables
 export var User = {
@@ -403,67 +409,68 @@ export function getUser() {
 }
 
 //-----------------Home------------------
-export const Stack = createStackNavigator();
+// export const Stack = createStackNavigator();
 
 function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home" screenOptions={{headerShown: false}}>
-        <Stack.Screen name="TripClicker" component={HomeScreen} />
-        <Stack.Screen name="Details" component={MainScreen} options={{title: 'TripClicker', headerLeft: () => {}}} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <TripCreation />
+    // <NavigationContainer>
+    //   <Stack.Navigator initialRouteName="Home" screenOptions={{headerShown: false}}>
+    //     <Stack.Screen name="TripClicker" component={HomeScreen} />
+    //     <Stack.Screen name="Details" component={MainScreen} options={{title: 'TripClicker', headerLeft: () => {}}} />
+    //   </Stack.Navigator>
+    // </NavigationContainer>
   );
 }
-function HomeScreen({ navigation }) {
-  const [showError, setError] = useState(false);
-  return (
-    <View style={{ flex: 1, alignItems: 'center' }}>
-    <Image source = {require('./photoblur.jpg')} style={{
-        height: win.height,
-        width: win.width,
-        margin: 0,
-        padding: 0,
-        position:"absolute"
-      }} />
-    <Image source = {require('./logo.png')} style={{
-          width: win.width,
-          margin: 0,
-          padding: 0,
-          marginTop: 50,
-          resizeMode: 'contain'
-      }} />
-      <View style={{flexDirection:'row', justifyContent:'center'}}>
-      <View style={{flexDirection:'column', justifyContent:'center', flex: 0.7}}>
-        <Input
-          placeholder='Name'
-          label='Name'
-          inputStyle={{color: 'white'}}
-          labelStyle={{color: 'rgba(255,255,255,0.5)'}}
-          onChangeText={value => User.username = value}
-        />
-        <Input 
-          placeholder="Password" 
-          secureTextEntry={true} 
-          inputStyle={{color: 'white'}}
-          labelStyle={{color: 'rgba(255,255,255,0.5)'}}
-          label='Password'
-          onChangeText={value => User.password = value}
-        />
-      </View>
-      </View>
-      { showError && <Text style={styles.errorText}>Username and password not valid {"\n"}</Text>}
-      <Button
-        title="Sign In"
-        type='clear'
-        titleStyle={{color: 'white'}}
-        onPress={() => handleSubmit({navigation}, setError)}
-      />
-    </View>
-  );
-}
+// function HomeScreen({ navigation }) {
+//   const [showError, setError] = useState(false);
+//   return (
+//     <View style={{ flex: 1, alignItems: 'center' }}>
+//     <Image source = {require('./photoblur.jpg')} style={{
+//         height: win.height,
+//         width: win.width,
+//         margin: 0,
+//         padding: 0,
+//         position:"absolute"
+//       }} />
+//     <Image source = {require('./logo.png')} style={{
+//           width: win.width,
+//           margin: 0,
+//           padding: 0,
+//           marginTop: 50,
+//           resizeMode: 'contain'
+//       }} />
+//       <View style={{flexDirection:'row', justifyContent:'center'}}>
+//       <View style={{flexDirection:'column', justifyContent:'center', flex: 0.7}}>
+//         <Input
+//           placeholder='Name'
+//           label='Name'
+//           inputStyle={{color: 'white'}}
+//           labelStyle={{color: 'rgba(255,255,255,0.5)'}}
+//           onChangeText={value => User.username = value}
+//         />
+//         <Input 
+//           placeholder="Password" 
+//           secureTextEntry={true} 
+//           inputStyle={{color: 'white'}}
+//           labelStyle={{color: 'rgba(255,255,255,0.5)'}}
+//           label='Password'
+//           onChangeText={value => User.password = value}
+//         />
+//       </View>
+//       </View>
+//       { showError && <Text style={styles.errorText}>Username and password not valid {"\n"}</Text>}
+//       <Button
+//         title="Sign In"
+//         type='clear'
+//         titleStyle={{color: 'white'}}
+//         onPress={() => handleSubmit({navigation}, setError)}
+//       />
+//     </View>
+//   );
+// }
 
-const Drawer = createDrawerNavigator();
+// const Drawer = createDrawerNavigator();
 function MainScreen() {
   return (
       <Drawer.Navigator initialRouteName="CreateTrip" screenOptions={{headerShown: false}}>
@@ -472,17 +479,17 @@ function MainScreen() {
       </Drawer.Navigator>
   );
 }
-function userPresent(User)
-{
-  for(var i = 0; i<users.length;i++)
-  {
-    if(users[i].username === User.username && users[i].password === User.password)
-    {
-      return true;
-    }
-  }
-  return false;
-}
+// function userPresent(User)
+// {
+//   for(var i = 0; i<users.length;i++)
+//   {
+//     if(users[i].username === User.username && users[i].password === User.password)
+//     {
+//       return true;
+//     }
+//   }
+//   return false;
+// }
 function handleSubmit ({navigation}, setError) {
   const value = User.username; // use that ref to get the form value
   if(userPresent(User))
