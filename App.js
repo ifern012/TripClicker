@@ -413,7 +413,7 @@ export function getUser() {
 
 function App() {
   return (
-    <TripCreation />
+    <Navigation />
     // <NavigationContainer>
     //   <Stack.Navigator initialRouteName="Home" screenOptions={{headerShown: false}}>
     //     <Stack.Screen name="TripClicker" component={HomeScreen} />
