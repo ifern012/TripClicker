@@ -1,7 +1,7 @@
 import React, { useState }  from 'react';
 import { Image, View, Text, StyleSheet, SafeAreaView, ScrollView, Linking, Dimensions, TextInput, Alert } from 'react-native';
 import { Card, Input, Button, Icon, Divider } from 'react-native-elements';
-import { getDestination, destinationPresent, Stack, addTrip} from '../App.js';
+import { getDestination, destinationPresent, Stack, addTrip, User, getTrip} from '../App.js';
 import DatePicker from 'react-native-datepicker';
   
 const win = Dimensions.get('window');
@@ -38,7 +38,18 @@ const styles = StyleSheet.create({
     position: "relative",
     top: -100, 
     marginBottom: -87
-  }
+  },
+  tripsPrice:{
+    fontSize: 20,
+    fontWeight: "bold",
+    color: '#00e676',
+  },
+  finalTripsPrice:{
+    fontSize: 22,
+    fontWeight: "bold",
+    color: '#00e676',
+
+  },
 });
 var selectedTrip = {
   startDate: 1,
@@ -54,7 +65,98 @@ export function DetailsScreen() {
     <Stack.Navigator initialRouteName="CreateTrip" screenOptions={{headerShown: false}}>
           <Stack.Screen name="CreateTrip" component={CreateTripScreen} />
           <Stack.Screen name="TripCreator" component={TripCreator}  />
+          <Stack.Screen name="TotalPaymentCheckout" component={TotalPaymentCheckout} />
     </Stack.Navigator>
+  );
+}
+
+function checkoutTrip({navigation}) {
+  if(selectedTrip.hotel == null || !selectedTrip.activities || !selectedTrip.restaurants)
+  {
+    Alert.alert(
+      'Could not create trip',
+      'Please choose at least one for each category',
+      [
+        { text: 'OK', onPress: () => console.log('OK Pressed') }
+      ],
+      { cancelable: false }
+    );
+  }else{
+    navigation.navigate('CreateTrip')
+  }
+}
+
+
+global.setTrip = {
+  dest: null,
+  hotel: null,
+  activities: [],
+  restaurants: [],
+}
+
+export function getSetTrip(){
+  return setTrip;
+}
+
+function TotalPaymentCheckout({ route, navigation }){
+
+  var { tripID } = route.params;
+  var { destination } = route.params;
+
+  var trip = getTrip(tripID);
+  totalPrice = getPriceTotal(tripID);
+  return (
+    <SafeAreaView style={styles.container}>
+    <ScrollView >
+      <View style={{ flex: 1, backgroundColor: '#ede7f6'}}>
+        <Image source={{uri: trip.image}} style={{
+          height: 300,
+          width: win.width,
+          marginBottom: 0,
+          paddingBottom: 0,
+        }}/>
+        <Divider style={{ backgroundColor: '#836fa9', height: 7}} />
+        <View style={styles.tripsContainer}>
+        <Text style={styles.tripsTitle}>{destination}</Text>
+        <View style={{height: 20}}></View>
+        <Text style={styles.tripsText}>Trip Reciept</Text></View>
+        <View style={{flexDirection:'column'}}>
+          <ScrollView horizontal={true} style={{}}>
+          <Card title={"Hotel"}
+                // image={{uri: trip.hotel.image}}
+                containerStyle={{width: 250, flex: 0.8, marginBottom: 30 , borderRadius: 10}}>
+                    <Text>{trip.hotel.name}</Text>
+                    <View style={{height: 3}}></View>
+                    <Text style={styles.tripsPrice}>{'$' + trip.hotel.price}</Text>
+                    <Button
+                    buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 5}}
+                    title='WEBSITE' 
+                    onPress={() => Linking.openURL(trip.hotel.link)}/>
+          </Card>
+          </ScrollView>
+          <Divider style={{ backgroundColor: '#836fa9', height: 7}} />
+          <ScrollView horizontal={true} style={{}}>
+            {activitiesList(tripID)}
+          </ScrollView>
+          <Divider style={{ backgroundColor: '#836fa9', height: 7}} />
+          <ScrollView horizontal={true} style={{}}>
+            {restaurantsList(tripID)}
+          </ScrollView>
+          <Divider style={{ backgroundColor: '#836fa9', height: 7}} />
+          <View style={styles.tripsContainer}>
+          <Text style={styles.tripsText}>Total Price</Text>
+          <View style={{height: 20}}></View>
+          <Text style={styles.finalTripsPrice}>{'$' + totalPrice }</Text>
+          </View>
+          </View>
+          <Divider style={{ backgroundColor: '#836fa9', height: 7}} />
+          <Button
+              buttonStyle={{borderRadius: 10, marginTop: 10, marginRight: 0, marginBottom: 5, backgroundColor: "#00e676"}}
+              title={'Check Out'}
+              onPress={() => checkoutTrip({navigation})}/>
+        </View>
+    </ScrollView>
+    </SafeAreaView>
   );
 }
 function CreateTripScreen({navigation}) {
@@ -269,8 +371,15 @@ function createTrip({navigation}) {
       { cancelable: false }
     );
   }else{
-    addTrip(selectedTrip);
-    navigation.navigate('CreateTrip');
+    // addTrip(selectedTrip);
+    var newID = addTrip(selectedTrip);
+    setTrip.hotel = selectedTrip.hotel
+    setTrip.destination = selectedTrip.destination
+    alert(selectedTrip.hotel.price)
+    navigation.navigate('TotalPaymentCheckout', {
+      tripID: newID,
+      destination: selectedTrip.destination,
+    });
   }
 }
 //-----------Handle-----------
@@ -328,6 +437,7 @@ function hotelList(id, hotels, setHotels) {
     )
   })
 }
+
 function selectHotel (id, data, setHotels){
   selectedTrip.hotel = data;
   var h = new Array(getDestination(id).hotels.length).fill(false);
@@ -418,4 +528,70 @@ function selectRestaurant (id, data, restBool, setRestBool){
     h[getDestination(id).restaurants.indexOf(data)] = false;
     setRestBool(h);
   }
+}
+function activitiesList(id) {
+  return getTrip(id).activities.map((data) => {
+      return (
+      <View style={{flexDirection:'row', justifyContent:'center', alignItems:'center'}}>
+          <Card
+          title={"Activity"}
+          // image={{uri: data.image}}
+          containerStyle={{width: 250, flex:0.5, margin: 20, marginBottom: 50, borderRadius: 10}}>
+          <Text>{data.name}</Text>
+          <View style={{height: 3}}></View>
+          <Text style={styles.tripsPrice}>{'$' + data.price}</Text>
+          <Button
+              buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginTop: 15}}
+              title='WEBSITE' 
+              onPress={() => Linking.openURL(data.link)}/>
+          </Card>
+      </View>
+      )
+  })
+}
+function restaurantsList(id) {
+  return getTrip(id).restaurants.map((data) => {
+    return (
+      <View style={{flexDirection:'row', justifyContent:'center', alignItems:'center'}}>
+        <Card
+        title={"Restaurant"}
+        // image={{uri: data.image}}
+        containerStyle={{width: 250, flex:0.5, margin: 20, marginBottom: 50, borderRadius: 10}}>
+          <Text>{data.name}</Text>
+          <View style={{height: 3}}></View>
+          <Text style={styles.tripsPrice}>{'$' + data.price}</Text>
+          <Button
+            buttonStyle={{borderRadius: 10, marginLeft: 0, marginRight: 0, marginTop: 15}}
+            title='WEBSITE' 
+            onPress={() => Linking.openURL(data.link)}/>
+        </Card>
+      </View>
+    )
+  })
+}
+//------------- Price Functions ------------------------------
+function getRestaurantTotal(id) {
+  var price = 0
+  getTrip(id).restaurants.map((data) => {
+    price+=parseInt(data.price,10)
+  })
+  alert(price)
+  return price
+}
+
+function getActivitiesTotal(id) {
+  var price = 0
+  getTrip(id).activities.map((data) => {
+    price+=parseInt(data.price,10)
+  })
+  alert(price)
+  return price
+}
+
+function getPriceTotal(id){
+  var trip = getTrip(id);
+  var price = parseInt(trip.hotel.price,10);
+  price+=getRestaurantTotal(id);
+  price+=getActivitiesTotal(id);
+  return price
 }
