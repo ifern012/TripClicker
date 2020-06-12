@@ -1,17 +1,23 @@
 import React, { useState }  from 'react';
 import { Image, View, Text, StyleSheet, SafeAreaView, ScrollView, Linking, Dimensions, TextInput } from 'react-native';
-import { Card, Input, Button, Icon } from 'react-native-elements';
+import { Card, Input, Button, Icon, CheckBox} from 'react-native-elements';
 import { NavigationContainer } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
 import { DetailsScreen } from './screens/tripCreation.js';
 import { TripsScreen } from './screens/savedTrips.js';
-
+import { UserInformationScreen } from './screens/userInfoScreen.js';
 //Variables
 export var User = {
     username: null,
     password: null,
+    name: null,
+    age: null,
+    faveDest: null,
+    travelForBuisness: null,
+    newId: null,
 };
+
 var users = [
   {username: 'Ivan', password: 'cs175'}, 
   {username: 'david', password: 'cs175'}]
@@ -387,7 +393,13 @@ const styles = StyleSheet.create({
     position: "relative",
     top: -100, 
     marginBottom: -80
-  }
+  },
+  titleText: {
+    fontSize: 25,
+    fontWeight: "bold",
+    backgroundColor: 'rgba(255,255,255,0.5)',
+    color: '#404040',
+  },
 });
 const win = Dimensions.get('window');
 
@@ -403,9 +415,10 @@ export function destinationPresent(dest)
   }
   return false;
 }
+
 export function addTrip(trip)
 {
-  var newId = Math.floor(Math.random() * 1000000) + 1;
+  newId = Math.floor(Math.random() * 1000000) + 1;
   var newTrip = {
     id: newId,
     username: User.username,
@@ -420,6 +433,7 @@ export function addTrip(trip)
   trips.push(newTrip);
   return newId;
 }
+
 export function getDestination(id)
 {
   for(var i = 0; i<destinations.length; i++)
@@ -453,12 +467,186 @@ function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home" screenOptions={{headerShown: false}}>
-        <Stack.Screen name="TripClicker" component={HomeScreen} />
+        <Stack.Screen name="TitleScreen" component={TitleScreen}/>
+        <Stack.Screen name="LoginScreen" component={HomeScreen} />
+        <Stack.Screen name="SignupScreen" component={SignupScreen} />
+        <Stack.Screen name="NewUserInfoScreen" component={NewUserInfoScreen} />
         <Stack.Screen name="Details" component={MainScreen} options={{title: 'TripClicker', headerLeft: () => {}}} />
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
+function TitleScreen({ navigation }){
+
+  return (
+    <View style={{ flex: 1, alignItems: 'center' }}>
+    <Image source = {require('./photoblur.jpg')} style={{
+        height: win.height,
+        width: win.width,
+        margin: 0,
+        padding: 0,
+        position:"absolute"
+        }} />
+    <Image source = {require('./logo.png')} style={{
+            width: win.width,
+            margin: 0,
+            padding: 0,
+            marginTop: 50,
+            resizeMode: 'contain'
+        }} />
+        <View style={{height: win.height * 0.38}}></View>
+        <Button
+        title="Sign In"
+        type='clear'
+        style={{color: 'pink', height: 50, width: 150, borderWidth: 1, justifyContent: 'center', borderColor: '#DCEFF8'}}
+        titleStyle={{color: 'white', fontSize: 25}}
+        onPress={() => navigation.navigate('LoginScreen')}
+        />
+        <View style={{height: 20}}></View>
+        <Button
+        title="Sign Up"
+        type='clear'
+        style={{height: 50, width: 150,borderWidth: 1, justifyContent: 'center', borderColor: '#DCEFF8'}}
+        titleStyle={{color: 'white', fontSize: 24}}
+        onPress={() => navigation.navigate('SignupScreen')}
+        />
+    </View>
+    );
+}
+
+function SignupScreen({ route, navigation }){
+  const [showError, setError] = useState(false);
+  return (
+    <View style={{ flex: 1, alignItems: 'center' }}>
+    <Image source = {require('./photoblur.jpg')} style={{
+        height: win.height,
+        width: win.width,
+        margin: 0,
+        padding: 0,
+        position:"absolute"
+        }} />
+    <Image source = {require('./logo.png')} style={{
+            width: win.width,
+            margin: 0,
+            padding: 0,
+            marginTop: 50,
+            resizeMode: 'contain'
+        }} />
+        <View style={{flexDirection:'row', justifyContent:'center'}}>
+        <View style={{flexDirection:'column', justifyContent:'center', flex: 0.7}}>
+        <Input
+            placeholder='Name'
+            label='Name'
+            inputStyle={{color: 'white'}}
+            labelStyle={{color: 'rgba(255,255,255,0.5)'}}
+            onChangeText={value => User.username = value}
+        />
+        <Input 
+            placeholder="Password" 
+            secureTextEntry={true} 
+            inputStyle={{color: 'white'}}
+            labelStyle={{color: 'rgba(255,255,255,0.5)'}}
+            label='Password'
+            onChangeText={value => User.password = value}
+        />
+        </View>
+        </View>
+        { showError && <Text style={styles.errorText}>Enter valid username and password {"\n"}</Text>}
+        <Button
+        title="Sign Up"
+        type='clear'
+        titleStyle={{color: 'white'}}
+        onPress={() => handleSignup({ navigation },setError)}
+        />
+        <View style={{height: win.height * 0.25}}></View>
+        <Button
+        title="Back"
+        type='clear'
+        titleStyle={{color: 'white'}}
+        onPress={() => navigation.navigate('TitleScreen')}
+        />
+    </View>
+    );
+}
+
+function NewUserInfoScreen({ navigation }){
+  const [showError, setError] = useState(false);
+  const [checked, setChecked] = useState(false);
+  return (
+    <View style={{ flex: 1, alignItems: 'center' }}>
+    <Image source = {require('./photoblur.jpg')} style={{
+        height: win.height,
+        width: win.width,
+        margin: 0,
+        padding: 0,
+        position:"absolute"
+        }} />
+      <View style={{height: win.height*0.27}}></View>
+      <Text style={styles.titleText}> {"  New User Information  "}</Text>
+      <View style={{height: 40}}></View>
+        <View style={{flexDirection:'row', justifyContent:'center'}}>
+        <View style={{flexDirection:'column', justifyContent:'center', flex: 0.7}}>
+        <Input
+            placeholder=''
+            label='Full Name'
+            inputStyle={{color: 'white'}}
+            labelStyle={{color: 'rgba(255,255,255,0.5)'}}
+            onChangeText={value => User.name = value}
+        />
+        <Input 
+            placeholder="" 
+            label='Age'
+            inputStyle={{color: 'white'}}
+            labelStyle={{color: 'rgba(255,255,255,0.5)'}}
+            onChangeText={value => User.age = value}
+        />
+        <Input 
+            placeholder="" 
+            label='Favorite Travel Destination'
+            inputStyle={{color: 'white'}}
+            labelStyle={{color: 'rgba(255,255,255,0.5)'}}
+            onChangeText={value => User.faveDest = value}
+        />
+        <CheckBox
+          center
+          title='Traveling For Buisness?'
+          checked={checked}
+          type='clear'
+          onPress={() => handleChecked(checked, setChecked)}
+        />
+        </View>
+        </View>
+        { showError && <Text style={styles.errorText}>Please enter all user information {"\n"}</Text>}
+        <Button
+        title="Sign Up"
+        type='clear'
+        titleStyle={{color: 'white'}}
+        onPress={() => handleCreateUser({ navigation },setError)}
+        />
+    </View>
+    );
+}
+
+function handleCreateUser ({navigation}, setError){
+  if((User.name != null && User.age != null || User.favoriteLoc != null))
+  {
+    setError(false);
+    navigation.navigate('Details');
+  }else{
+    setError(true);
+  }
+}
+
+export function handleChecked (checked, setChecked) {
+  if(checked){
+    setChecked(false);
+    User.travelForBuisness = false;
+  }else{
+    setChecked(true);
+    User.travelForBuisness = true;
+  }
+}
+
 function HomeScreen({ navigation }) {
   const [showError, setError] = useState(false);
   return (
@@ -503,6 +691,13 @@ function HomeScreen({ navigation }) {
         titleStyle={{color: 'white'}}
         onPress={() => handleSubmit({navigation}, setError)}
       />
+      <View style={{height: win.height * 0.25}}></View>
+            <Button
+            title="Back"
+            type='clear'
+            titleStyle={{color: 'white'}}
+            onPress={() => navigation.navigate('TitleScreen')}
+            />
     </View>
   );
 }
@@ -513,6 +708,7 @@ function MainScreen() {
       <Drawer.Navigator initialRouteName="CreateTrip" screenOptions={{headerShown: false}}>
         <Drawer.Screen name="CreateTrip" component={DetailsScreen} options={{title: 'Create new trip'}} />
         <Drawer.Screen name="Trips" component={TripsScreen} options={{title: 'My trips'}}/>
+        <Drawer.Screen name="UserInformation" component={UserInformationScreen} options={{title: 'User Information'}} />
       </Drawer.Navigator>
   );
 }
@@ -526,6 +722,17 @@ function userPresent(User)
     }
   }
   return false;
+}
+function handleSignup({navigation}, setError){
+    const value = User.username; // use that ref to get the form value
+   // alert(User.username)
+    if((User.username != null && User.password != null) && !userPresent(User))
+    {
+      setError(false);
+      navigation.navigate('NewUserInfoScreen')
+    }else{
+      setError(true);
+    }
 }
 function handleSubmit ({navigation}, setError) {
   const value = User.username; // use that ref to get the form value

@@ -1,7 +1,7 @@
 import React, { useState }  from 'react';
 import { Image, View, Text, StyleSheet, SafeAreaView, ScrollView, Linking, Dimensions, TextInput, Alert } from 'react-native';
 import { Card, Input, Button, Icon, Divider } from 'react-native-elements';
-import { getDestination, destinationPresent, Stack, addTrip, User, getTrip} from '../App.js';
+import { getDestination, destinationPresent, Stack, addTrip, getTrip, getUser} from '../App.js';
 import DatePicker from 'react-native-datepicker';
   
 const win = Dimensions.get('window');
@@ -371,11 +371,9 @@ function createTrip({navigation}) {
       { cancelable: false }
     );
   }else{
-    // addTrip(selectedTrip);
     var newID = addTrip(selectedTrip);
     setTrip.hotel = selectedTrip.hotel
     setTrip.destination = selectedTrip.destination
-    alert(selectedTrip.hotel.price)
     navigation.navigate('TotalPaymentCheckout', {
       tripID: newID,
       destination: selectedTrip.destination,
@@ -575,7 +573,6 @@ function getRestaurantTotal(id) {
   getTrip(id).restaurants.map((data) => {
     price+=parseInt(data.price,10)
   })
-  alert(price)
   return price
 }
 
@@ -584,7 +581,6 @@ function getActivitiesTotal(id) {
   getTrip(id).activities.map((data) => {
     price+=parseInt(data.price,10)
   })
-  alert(price)
   return price
 }
 
